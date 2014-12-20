@@ -1,0 +1,74 @@
+BEGIN;
+BEGIN
+select
+	c_count,
+	count(*) as custdist
+from
+	(
+		select
+			c_custkey,
+			count(o_orderkey)
+		from
+			customer left outer join orders on
+				c_custkey = o_custkey
+				and o_comment not like '%express%deposits%'
+		group by
+			c_custkey
+	) as c_orders (c_custkey, c_count)
+group by
+	c_count
+order by
+	custdist desc,
+	c_count desc;
+ c_count | custdist 
+---------+----------
+       0 |   500019
+      10 |    66125
+       9 |    65286
+      11 |    62027
+       8 |    58451
+      12 |    55827
+      13 |    49851
+      19 |    46605
+       7 |    46498
+      18 |    46199
+      14 |    45394
+      20 |    45341
+      17 |    44970
+      16 |    43971
+      15 |    43770
+      21 |    42341
+      22 |    38006
+       6 |    32875
+      23 |    32608
+      24 |    26642
+      25 |    21353
+       5 |    19622
+      26 |    15848
+      27 |    11589
+       4 |    10047
+      28 |     8201
+      29 |     5586
+       3 |     4016
+      30 |     3739
+      31 |     2347
+      32 |     1458
+       2 |     1201
+      33 |      864
+      34 |      506
+      35 |      273
+       1 |      234
+      36 |      149
+      37 |       77
+      38 |       37
+      39 |       25
+      42 |        7
+      40 |        7
+      41 |        5
+      45 |        1
+      44 |        1
+      43 |        1
+(46 rows)
+
+COMMIT;
+COMMIT

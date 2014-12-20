@@ -1,0 +1,51 @@
+BEGIN;
+BEGIN
+select
+	supp_nation,
+	cust_nation,
+	l_year,
+	sum(volume) as revenue
+from
+	(
+		select
+			n1.n_name as supp_nation,
+			n2.n_name as cust_nation,
+			extract(year from l_shipdate) as l_year,
+			l_extendedprice * (1 - l_discount) as volume
+		from
+			supplier,
+			lineitem,
+			orders,
+			customer,
+			nation n1,
+			nation n2
+		where
+			s_suppkey = l_suppkey
+			and o_orderkey = l_orderkey
+			and c_custkey = o_custkey
+			and s_nationkey = n1.n_nationkey
+			and c_nationkey = n2.n_nationkey
+			and (
+				(n1.n_name = 'VIETNAM' and n2.n_name = 'IRAN')
+				or (n1.n_name = 'IRAN' and n2.n_name = 'VIETNAM')
+			)
+			and l_shipdate between date '1995-01-01' and date '1996-12-31'
+	) as shipping
+group by
+	supp_nation,
+	cust_nation,
+	l_year
+order by
+	supp_nation,
+	cust_nation,
+	l_year;
+        supp_nation        |        cust_nation        | l_year |     revenue      
+---------------------------+---------------------------+--------+------------------
+ IRAN                      | VIETNAM                   |   1995 | 532651428.787052
+ IRAN                      | VIETNAM                   |   1996 | 536734015.145756
+ VIETNAM                   | IRAN                      |   1995 | 529133035.069755
+ VIETNAM                   | IRAN                      |   1996 | 520906221.119446
+(4 rows)
+
+COMMIT;
+COMMIT
